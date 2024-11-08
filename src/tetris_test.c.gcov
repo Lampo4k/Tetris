@@ -1,0 +1,341 @@
+        -:    0:Source:tetris_test.c
+        -:    0:Graph:tetris_test.gcno
+        -:    0:Data:tetris_test.gcda
+        -:    0:Runs:22
+        -:    0:Programs:1
+        -:    1:#include "./brick_game/tetris/tetris.h"
+        -:    2:
+        -:    3:#include <check.h>
+        -:    4:
+function gameInfoInit1_fn called 2 returned 100% blocks executed 67%
+        2:    5:START_TEST(gameInfoInit1) {
+        -:    6:  GameInfo_t gi;
+        2:    7:  gameInfoInit(&gi);
+        2:    8:  ck_assert_int_eq(gi.level, 1);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:    9:  ck_assert_int_eq(gi.speed, INIT_SPEED);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:   10:  ck_assert_int_eq(gi.score, 0);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:   11:  ck_assert_int_eq(gi.pause, 1);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:   12:  ck_assert_ptr_nonnull(gi.field);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:   13:  ck_assert_ptr_nonnull(gi.next);
+branch  0 taken 0%
+branch  1 taken 100%
+        2:   14:}
+        -:   15:END_TEST
+        -:   16:
+        -:   17:START_TEST(destroyField1) {
+        -:   18:  int **field = (int **)malloc(BOARD_HEIGHT * sizeof(int *));
+        -:   19:  for (int i = 0; i < BOARD_HEIGHT; i++)
+        -:   20:    field[i] = (int *)malloc(BOARD_WIDTH * sizeof(int));
+        -:   21:
+        -:   22:  fieldDestroy(field);
+        -:   23:  ck_assert_ptr_null(field);
+        -:   24:}
+        -:   25:
+function copyField1_fn called 2 returned 100% blocks executed 93%
+        2:   26:START_TEST(copyField1) {
+        2:   27:  int **src = (int **)malloc(BOARD_HEIGHT * sizeof(int *));
+       42:   28:  for (int i = 0; i < BOARD_HEIGHT; i++)
+branch  0 taken 95%
+branch  1 taken 5%
+       40:   29:    src[i] = (int *)malloc(BOARD_WIDTH * sizeof(int));
+        -:   30:
+        2:   31:  int **dest = (int **)malloc(BOARD_HEIGHT * sizeof(int *));
+       42:   32:  for (int i = 0; i < BOARD_HEIGHT; i++)
+branch  0 taken 95%
+branch  1 taken 5%
+       40:   33:    dest[i] = (int *)malloc(BOARD_WIDTH * sizeof(int));
+        -:   34:
+       42:   35:  for (int i = 0; i < BOARD_HEIGHT; i++)
+branch  0 taken 95%
+branch  1 taken 5%
+      440:   36:    for (int j = 0; j < BOARD_WIDTH; j++) src[i][j] = rand() % NUM_PIECES;
+branch  0 taken 91%
+branch  1 taken 9%
+        -:   37:
+        2:   38:  copyField(src, dest);
+       42:   39:  for (int i = 0; i < BOARD_HEIGHT; i++)
+branch  0 taken 95%
+branch  1 taken 5%
+      440:   40:    for (int j = 0; j < BOARD_WIDTH; j++)
+branch  0 taken 91%
+branch  1 taken 9%
+      440:   41:      ck_assert_int_eq(src[i][j], dest[i][j]);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:   42:
+        2:   43:  fieldDestroy(src);
+        2:   44:  fieldDestroy(dest);
+        2:   45:}
+        -:   46:
+function newPiece1_fn called 2 returned 100% blocks executed 67%
+        2:   47:START_TEST(newPiece1) {
+        -:   48:  Piece_t pc;
+        2:   49:  newPiece(&pc);
+        2:   50:  ck_assert_int_ge(pc.type, 0);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:   51:  ck_assert_int_lt(pc.type, NUM_PIECES);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:   52:  ck_assert_int_ge(pc.orientation, 0);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:   53:  ck_assert_int_lt(pc.orientation, 4);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:   54:  ck_assert_int_ge(pc.location.y, 0);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:   55:  ck_assert_int_lt(pc.location.y, BOARD_HEIGHT);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:   56:  ck_assert_int_ge(pc.location.x, 0);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:   57:  ck_assert_int_lt(pc.location.x, BOARD_WIDTH);
+branch  0 taken 0%
+branch  1 taken 100%
+        2:   58:}
+        -:   59:
+function userInput1_fn called 2 returned 100% blocks executed 67%
+        2:   60:START_TEST(userInput1) {
+        2:   61:  gameInfoInit(getGameInfoInstance());
+        2:   62:  GameInfo_t gi = *getGameInfoInstance();
+        2:   63:  Piece_t *current_piece = getCurrentPiece();
+        2:   64:  Piece_t *next_piece = getNextPiece();
+        2:   65:  newPiece(current_piece);
+        2:   66:  newPiece(next_piece);
+        2:   67:  spawnPiece(gi.field, *current_piece);
+        2:   68:  userInput(Start, false);
+        -:   69:
+        2:   70:  userInput(Left, false);
+        2:   71:  ck_assert_int_eq(getCurrentPiece()->location.x, BOARD_WIDTH / 2 - 3);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:   72:
+        2:   73:  userInput(Right, false);
+        2:   74:  ck_assert_int_eq(getCurrentPiece()->location.x, BOARD_WIDTH / 2 - 2);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:   75:
+        2:   76:  userInput(Up, false);
+        2:   77:  ck_assert_int_eq(getCurrentPiece()->orientation, 1);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:   78:
+        2:   79:  userInput(Down, false);
+        2:   80:  ck_assert_int_eq(*getTicks(), gi.speed / 2);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:   81:
+        2:   82:  userInput(Action, false);
+        2:   83:  ck_assert_int_eq(getCurrentPiece()->orientation, 2);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:   84:
+        2:   85:  userInput(Pause, false);
+        2:   86:  ck_assert_int_eq(getGameInfoInstance()->pause, 1);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:   87:
+        2:   88:  userInput(Terminate, false);
+        2:   89:  ck_assert_int_eq(getGameInfoInstance()->pause, 2);
+branch  0 taken 0%
+branch  1 taken 100%
+        2:   90:}
+        -:   91:
+function updateCurrentState1_fn called 2 returned 100% blocks executed 67%
+        2:   92:START_TEST(updateCurrentState1) {
+        2:   93:  int *ticks = getTicks();
+        2:   94:  GameInfo_t *gi = getGameInfoInstance();
+        2:   95:  Piece_t *current_piece = getCurrentPiece();
+        2:   96:  Piece_t *next_piece = getNextPiece();
+        2:   97:  gameInfoInit(gi);
+        2:   98:  newPiece(current_piece);
+        2:   99:  newPiece(next_piece);
+        2:  100:  spawnPiece(gi->field, *current_piece);
+        2:  101:  gi->pause = 0;
+        -:  102:
+        2:  103:  *ticks += gi->speed;
+        2:  104:  updateCurrentState();
+        2:  105:  ck_assert_int_eq(current_piece->location.y, 1);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:  106:  ck_assert_int_eq(*ticks, 0);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  107:
+        2:  108:  updateCurrentState();
+        2:  109:  ck_assert_int_eq(current_piece->location.y, 1);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:  110:  ck_assert_int_eq(*ticks, 1);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  111:
+        2:  112:  gi->score += 600;
+        2:  113:  updateCurrentState();
+        2:  114:  ck_assert_int_eq(gi->level, 2);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:  115:  ck_assert_int_eq(gi->speed, INIT_SPEED - SPEED_STEP);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:  116:  ck_assert_int_eq(*ticks, 2);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  117:
+        2:  118:  gi->next[0][0] = IBlock;
+        2:  119:  updateCurrentState();
+        2:  120:  ck_assert_int_eq(gi->pause, 3);
+branch  0 taken 0%
+branch  1 taken 100%
+        2:  121:}
+        -:  122:
+function moveDown1_fn called 2 returned 100% blocks executed 81%
+        2:  123:START_TEST(moveDown1) {
+        2:  124:  int **field = (int **)malloc(BOARD_HEIGHT * sizeof(int *));
+       42:  125:  for (int i = 0; i < BOARD_HEIGHT; i++)
+branch  0 taken 95%
+branch  1 taken 5%
+       40:  126:    field[i] = (int *)malloc(BOARD_WIDTH * sizeof(int));
+        -:  127:
+        -:  128:  Piece_t pc, next;
+        2:  129:  newPiece(&pc);
+        2:  130:  newPiece(&next);
+        2:  131:  next.location.y = 2;
+        -:  132:
+        2:  133:  spawnPiece(field, pc);
+        2:  134:  spawnPiece(field, next);
+        2:  135:  moveDown(field, &pc, &next);
+        -:  136:
+        2:  137:  ck_assert_int_eq(pc.location.y, 2);
+branch  0 taken 100%
+branch  1 taken 0%
+        -:  138:
+        2:  139:  despawnPiece(field, pc);
+        2:  140:  despawnPiece(field, next);
+        2:  141:  fieldDestroy(field);
+        2:  142:}
+        -:  143:
+function moveLeftRight1_fn called 2 returned 100% blocks executed 81%
+        2:  144:START_TEST(moveLeftRight1) {
+        2:  145:  int **field = (int **)malloc(BOARD_HEIGHT * sizeof(int *));
+       42:  146:  for (int i = 0; i < BOARD_HEIGHT; i++)
+branch  0 taken 95%
+branch  1 taken 5%
+       40:  147:    field[i] = (int *)malloc(BOARD_WIDTH * sizeof(int));
+        -:  148:
+        -:  149:  Piece_t pc;
+        2:  150:  newPiece(&pc);
+        2:  151:  pc.type = IBlock;
+        2:  152:  pc.location.y = 2;
+        2:  153:  pc.location.x = 3;
+        -:  154:
+        2:  155:  spawnPiece(field, pc);
+        2:  156:  moveLeftRight(field, &pc, -1);
+        2:  157:  ck_assert_int_eq(pc.location.x, 3);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:  158:}
+        -:  159:
+function pieceRotate1_fn called 2 returned 100% blocks executed 81%
+        2:  160:START_TEST(pieceRotate1) {
+        2:  161:  int **field = (int **)malloc(BOARD_HEIGHT * sizeof(int *));
+       42:  162:  for (int i = 0; i < BOARD_HEIGHT; i++)
+branch  0 taken 95%
+branch  1 taken 5%
+       40:  163:    field[i] = (int *)malloc(BOARD_WIDTH * sizeof(int));
+        -:  164:
+        -:  165:  Piece_t pc;
+        2:  166:  newPiece(&pc);
+        2:  167:  pc.type = IBlock;
+        2:  168:  pc.orientation = 1;
+        2:  169:  pc.location.y = 3;
+        2:  170:  pc.location.x = 4;
+        -:  171:
+        2:  172:  spawnPiece(field, pc);
+        2:  173:  pieceRotate(field, &pc, 1);
+        2:  174:  ck_assert_int_eq(pc.location.x, 5);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:  175:}
+        -:  176:
+function lineCheck1_fn called 2 returned 100% blocks executed 86%
+        2:  177:START_TEST(lineCheck1) {
+        2:  178:  int **field = (int **)malloc(BOARD_HEIGHT * sizeof(int *));
+       42:  179:  for (int i = 0; i < BOARD_HEIGHT; i++)
+branch  0 taken 95%
+branch  1 taken 5%
+       40:  180:    field[i] = (int *)malloc(BOARD_WIDTH * sizeof(int));
+        -:  181:
+       22:  182:  for (int i = 0; i < BOARD_WIDTH; i++) field[0][i] = IBlock;
+branch  0 taken 91%
+branch  1 taken 9%
+        2:  183:  ck_assert_int_eq(lineCheck(field, 0), 1);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:  184:}
+        -:  185:
+function checkLines1_fn called 2 returned 100% blocks executed 89%
+        2:  186:START_TEST(checkLines1) {
+        -:  187:  Piece_t pc;
+        2:  188:  newPiece(&pc);
+        2:  189:  int **field = (int **)malloc(BOARD_HEIGHT * sizeof(int *));
+       42:  190:  for (int i = 0; i < BOARD_HEIGHT; i++) {
+branch  0 taken 95%
+branch  1 taken 5%
+       40:  191:    field[i] = (int *)malloc(BOARD_WIDTH * sizeof(int));
+      440:  192:    for (int j = 0; j < BOARD_WIDTH; j++) field[i][j] = Empty;
+branch  0 taken 91%
+branch  1 taken 9%
+       40:  193:  }
+        -:  194:
+       22:  195:  for (int i = 0; i < BOARD_WIDTH; i++) {
+branch  0 taken 91%
+branch  1 taken 9%
+       20:  196:    field[8][i] = IBlock;
+       20:  197:    field[9][i] = IBlock;
+       20:  198:  }
+        2:  199:  int lines = checkLines(field, pc);
+        2:  200:  ck_assert_int_eq(lines, 2);
+branch  0 taken 100%
+branch  1 taken 0%
+        2:  201:}
+        -:  202:
+function main called 22 returned 100% blocks executed 100%
+       22:  203:int main(void) {
+       22:  204:  Suite *s1 = suite_create("Core");
+       22:  205:  TCase *tc1_1 = tcase_create("Core");
+       22:  206:  SRunner *sr = srunner_create(s1);
+        -:  207:  int nf;
+        -:  208:
+       22:  209:  suite_add_tcase(s1, tc1_1);
+       22:  210:  tcase_add_test(tc1_1, gameInfoInit1);
+        -:  211:  // tcase_add_test(tc1_1, destroyField1);
+       22:  212:  tcase_add_test(tc1_1, copyField1);
+       22:  213:  tcase_add_test(tc1_1, newPiece1);
+       22:  214:  tcase_add_test(tc1_1, userInput1);
+       22:  215:  tcase_add_test(tc1_1, updateCurrentState1);
+       22:  216:  tcase_add_test(tc1_1, moveDown1);
+       22:  217:  tcase_add_test(tc1_1, moveLeftRight1);
+       22:  218:  tcase_add_test(tc1_1, pieceRotate1);
+       22:  219:  tcase_add_test(tc1_1, lineCheck1);
+       22:  220:  tcase_add_test(tc1_1, checkLines1);
+        -:  221:
+       22:  222:  srunner_run_all(sr, CK_ENV);
+       22:  223:  nf = srunner_ntests_failed(sr);
+       22:  224:  srunner_free(sr);
+        -:  225:
+       22:  226:  return nf == 0 ? 0 : 1;
+        -:  227:}
